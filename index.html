@@ -1,11 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" href="../logo.jpg" />
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<title>PHASE II</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				min-height: 100vh;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				font-family: Arial, sans-serif;
+			}
+
+			#text {
+				margin-bottom: 30px;
+				color: white;
+				font-family: sans-serif;
+				font-size: 24px;
+			}
+
+			.button-grid {
+				display: grid;
+				grid-template-columns: repeat(2, 80px);
+				gap: 15px;
+				margin-bottom: 50px;
+			}
+
+			.choice-btn {
+				width: 80px;
+				height: 80px;
+				font-size: 32px;
+				font-weight: bold;
+				border: 3px solid white;
+				border-radius: 10px;
+				background: rgba(255, 255, 255, 0.2);
+				color: white;
+				cursor: pointer;
+				transition: all 0.3s ease;
+				backdrop-filter: blur(5px);
+			}
+
+			.choice-btn:hover {
+				background: rgba(255, 255, 255, 0.4);
+				transform: scale(1.1);
+			}
+
+			.choice-btn.selected {
+				background: rgba(76, 175, 80, 0.6);
+				border-color: #4caf50;
+				transform: scale(1.15);
+			}
+
+			.choice-btn.wrong {
+				background: rgba(244, 67, 54, 0.6);
+				border-color: #f44336;
+			}
+
+			.scene {
+				width: 300px;
+				height: 400px;
+				perspective: 1000px;
+			}
+
+			.box {
+				position: relative;
+				width: 250px;
+				height: 250px;
+				margin: 0 auto;
+			}
+
+			.box-bottom {
+				width: 250px;
+				height: 250px;
+				background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+				border-radius: 15px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: 80px;
+				box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
+					inset 0 2px 5px rgba(255, 255, 255, 0.1);
+				color: white;
+				font-family: sans-serif;
+				font-size: 24px;
+				text-align: center;
+				padding: 20px;
+			}
+
+			.box-lid {
+				position: absolute;
+				width: 250px;
+				height: 250px;
+				background: linear-gradient(135deg, #d2691e 0%, #cd853f 100%);
+				border-radius: 15px;
+				top: 0;
+				left: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				font-size: 60px;
+				color: white;
+				box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+					inset 0 2px 5px rgba(255, 255, 255, 0.2);
+				transform-origin: bottom center;
+				transform-style: preserve-3d;
+				transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+			}
+
+			.box-lid.open {
+				transform: rotateX(-150deg);
+			}
+
+			.controls {
+				text-align: center;
+				margin-top: 50px;
+			}
+
+			.message {
+				color: white;
+				margin-top: 20px;
+				font-size: 18px;
+				font-weight: bold;
+				min-height: 24px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1 id="text">CHOOSE THE 2 CORRECT BUTTONS</h1>
+
+		<div class="scene">
+			<div class="box">
+				<div class="box-bottom" id="boxMessage">PHASE III</div>
+				<div class="box-lid" id="lid">?</div>
+			</div>
+			<div class="controls">
+				<div
+					class="button-grid"
+					style="display: flex; justify-content: center; align-items: center"
+				>
+					<button class="choice-btn" onclick="selectButton('A', this)">
+						A
+					</button>
+					<button class="choice-btn" onclick="selectButton('B', this)">
+						B
+					</button>
+					<button class="choice-btn" onclick="selectButton('C', this)">
+						C
+					</button>
+					<button class="choice-btn" onclick="selectButton('D', this)">
+						D
+					</button>
+				</div>
+				<div class="message" id="message"></div>
+			</div>
+		</div>
+
+		<script>
+			const correctAnswers = ["A", "D"];
+			const selected = [];
+			const lid = document.getElementById("lid");
+			const messageEl = document.getElementById("message");
+			const boxMsg = document.getElementById("boxMessage");
+			let isOpen = false;
+
+			function selectButton(letter, btn) {
+				if (selected.includes(letter)) {
+					selected.splice(selected.indexOf(letter), 1);
+					btn.classList.remove("selected");
+				} else if (selected.length < 2) {
+					selected.push(letter);
+					btn.classList.add("selected");
+				} else {
+					messageEl.textContent = "You can only select 2 buttons!";
+					return;
+				}
+
+				if (selected.length === 2) {
+					checkAnswer();
+				}
+			}
+
+			function checkAnswer() {
+				const isCorrect =
+					selected.length === 2 &&
+					selected.every((letter) => correctAnswers.includes(letter));
+
+				if (isCorrect) {
+					messageEl.textContent = "";
+					messageEl.style.color = "#4CAF50";
+					boxMsg.textContent = "You Passed";
+					Swal.fire({
+    				  title: "Good job!",
+    				  text: "You chose the correct buttons!",
+    				  icon: "success"
+    				});
+					toggleBox();
+				} else {
+					messageEl.textContent = "Wrong Buttons you're ELIMINATED";
+					messageEl.style.color = "#F44336";
+					document.querySelectorAll(".choice-btn").forEach((btn) => {
+						const label = btn.textContent.trim();
+						if (selected.includes(label)) {
+							btn.classList.add("wrong");
+							setTimeout(() => {
+								btn.classList.remove("selected", "wrong");
+							}, 600);
+						}
+					});
+					selected.length = 0;
+				}
+			}
+
+			function toggleBox() {
+				isOpen = !isOpen;
+				lid.classList.toggle("open", isOpen);
+			}
+		</script>
+	</body>
 </html>
